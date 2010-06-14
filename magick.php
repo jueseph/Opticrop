@@ -19,6 +19,9 @@ function main() {}
 
 function opticrop($image, $w, $h, $out) {
     global $cache_path;
+    $timeparts = explode(' ',microtime());
+    $starttime = $timeparts[1].substr($timeparts[0],1);
+    
     // get size of the original
     $imginfo = getimagesize($image);
     $w0 = $imginfo[0];
@@ -134,6 +137,9 @@ function opticrop($image, $w, $h, $out) {
     $outsub = str_replace("^%","%5E%25",$out);
     dprint("maxfile: $maxfile");
     dprint("output:<br/><img src=\"/process/$outsub\"/>");
+    $timeparts = explode(' ',microtime());
+    $endtime = $timeparts[1].substr($timeparts[0],1);
+    dprint(bcsub($endtime,$starttime,6));
     return;
 }
 
