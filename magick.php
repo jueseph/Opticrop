@@ -1,14 +1,26 @@
 <?php
 define('DOCUMENT_ROOT', $_SERVER['DOCUMENT_ROOT']);
-//  location of cached images (with trailing /)
+// location of cached images (with trailing /)
 define('CACHE_PATH', 'imagecache/');
-//  location of imagemagick's convert utility
+// location of imagemagick's convert utility
 define('CONVERT_PATH', 'convert');//'/usr/local/bin/convert';
-define('DEBUG', 1);
+define('LOG_PATH', 'log.magick.txt');
+// toggle output of dprint() function
+define('DEBUG', 0);
 error_reporting(E_ALL);
 ini_set('display_errors', '1');
 
+// execute the script
+main();
+
 function main() {
+    // start timer
+    $timeparts = explode(' ',microtime());
+    $starttime = $timeparts[1].substr($timeparts[0],1);
+    
+    // open log file
+    $lf = fopen(LOG_PATH, 'a');
+
     // prep image path
     $image = get_image($_GET['src']);
 
@@ -27,12 +39,28 @@ function main() {
     $cache = get_cache($image, $cmds);
 
     // compute image if needed
+    $result = 0;
     if (!file_exists($cache)) {
-        dispatch($image, $cache, $cmds);
+        $result = dispatch($image, $cache, $cmds);
     }
 
+    // show source image for comparison
+    render(end(explode('/', $image)), true);
+    echo "<br/>";
     // serve out results
-    render($cache);
+    if ($result == 0) {
+        render($cache, true);
+    }
+
+    // end timer
+    $timeparts = explode(' ',microtime());
+    $endtime = $timeparts[1].substr($timeparts[0],1);
+    $elapsed = bcsub($endtime,$starttime,6);
+    echo "<br/>Script execution time (s): ".$elapsed;
+    $logstring = date(DATE_RFC822)."\n".
+        $_SERVER["QUERY_STRING"]."\n$elapsed s\n\n";
+    fwrite($lf, $logstring);
+    fclose($lf);
 }
 
 function get_image($url) {
@@ -148,7 +176,7 @@ function dispatch($image, $cache, $cmds) {
                 die('ERROR: Invalid parameter.');
             }
             list($width, $height) = explode('x', $cmd[4]);
-            opticrop($image, $width, $height, $cache);
+            $result = opticrop($image, $width, $height, $cache);
             break;
 
         case 'part':
@@ -224,7 +252,7 @@ function dispatch($image, $cache, $cmds) {
         $convert .= '"'.$cache.'"';
 
         // execute imagemagick's convert, save output as $cache
-        exec($convert);
+        $result = exec($convert);
         dprint($cache);
     }
 
@@ -235,12 +263,22 @@ function dispatch($image, $cache, $cmds) {
 
     // make cache easily writeable so anyone can clear it
     chmod($cache, 0777);
+
+    return $result;
 }
 
 /* 
- * serves the image stored at the system path $cache
+ * serves an image 
+ *
+ * $cache - path of file to display
+ * $as_html - serve the image as an img tag in an html page (use for debugging)
  */
-function render($cache) {
+function render($cache, $as_html=false) {
+    if ($as_html) {
+        $outsub = str_replace("^%","%5E%25",$cache);
+        echo "<img src=\"$outsub\"/>";
+        return;
+    }
     // get image data for use in http-headers
     $imginfo = getimagesize($cache);
     $content_length = filesize($cache);
@@ -418,13 +456,9 @@ function opticrop($image, $w, $h, $out) {
     $img = $maximg;
     $img->scaleImage($w,$h);
     $img->writeImage($out);
-    $outsub = str_replace("^%","%5E%25",$out);
     dprint("maxfile: $maxfile");
-    dprint("output:<br/><img src=\"/process/$outsub\"/>");
-    exit();
-}
 
-// execute the script
-main();
+    return 0;
+}
 
 ?>

@@ -1,0 +1,16 @@
+Tue, 15 Jun 10 11:50:58 -0400
+src=http://localhost/process/test3.jpg&cmd=opticrop(80x80)&cache=no
+14.828535 s
+
+Tue, 15 Jun 10 11:59:20 -0400
+src=http://localhost/process/test3.jpg&cmd=opticrop(80x80)&cache=no
+14.648355 s
+
+Tue, 15 Jun 10 12:01:59 -0400
+src=http://localhost/process/test.jpg&cmd=opticrop(80x80)&cache=no
+11.315144 s
+
+Tue, 15 Jun 10 12:02:42 -0400
+src=http://localhost/process/test2.jpg&cmd=opticrop(80x80)&cache=no
+22.660336 s
+

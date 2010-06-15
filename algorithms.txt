@@ -1,0 +1,4 @@
+6/15/2010 12pm
+opticrop:
+generates crops from a uniformly spaced grid of locations (and crop sizes), computes edgesum for each, picks highest one after normalization
+inefficient bc many copies of image are made
