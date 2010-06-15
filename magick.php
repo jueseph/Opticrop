@@ -6,7 +6,7 @@ define('CACHE_PATH', 'imagecache/');
 define('CONVERT_PATH', 'convert');//'/usr/local/bin/convert';
 define('LOG_PATH', 'log.magick.txt');
 // toggle output of dprint() function
-define('DEBUG', 1);
+define('DEBUG', 0);
 error_reporting(E_ALL);
 ini_set('display_errors', '1');
 
@@ -48,18 +48,20 @@ function main() {
     }
 
     // show source image for comparison
-    render(end(explode('/', $image)), true);
-    echo "<br/>";
+    if (DEBUG == 1) {
+        render(end(explode('/', $image)), true);
+        echo "<br/>";
+    }
     // serve out results
     if ($result == 0) {
-        render($cache, true);
+        render($cache, (DEBUG==1)?true:false);
     }
 
     // end timer
     $timeparts = explode(' ',microtime());
     $endtime = $timeparts[1].substr($timeparts[0],1);
     $elapsed = bcsub($endtime,$starttime,6);
-    echo "<br/>Script execution time (s): ".$elapsed;
+    dprint("<br/>Script execution time (s): ".$elapsed);
     $logstring = date(DATE_RFC822)."\n".
         $_SERVER["QUERY_STRING"]."\n$elapsed s\n\n";
     fwrite($lf, $logstring);
