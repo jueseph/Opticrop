@@ -1,142 +1,240 @@
 <?php
 define('DOCUMENT_ROOT', $_SERVER['DOCUMENT_ROOT']);
+//  location of cached images (with trailing /)
+define('CACHE_PATH', 'imagecache/');
+//  location of imagemagick's convert utility
+define('CONVERT_PATH', 'convert');//'/usr/local/bin/convert';
 define('DEBUG', 1);
 error_reporting(E_ALL);
 ini_set('display_errors', '1');
 
-// update to master
+function main() {
+    // prep image path
+    $image = get_image($_GET['src']);
 
-function main() {}
-
-/* 
- * edge-maximizing crop
- *
- * generates a thumbnail of desired dimensions from a source image by cropping 
- * the most "interesting" or edge-filled part of the image.
- *
- * $w, $h - target dimensions of thumbnail
- * $image - system path to source image
- * $out - path/name of output image
- */
-
-function opticrop($image, $w, $h, $out) {
-    global $cache_path;
-    // get size of the original
-    $imginfo = getimagesize($image);
-    $w0 = $imginfo[0];
-    $h0 = $imginfo[1];
-    if ($w > $w0 || $h > $h0)
-        die("Target dimensions must be smaller or equal to source dimensions.");
-
-    dprint('$img: '.$image);
-    dprint('$w x $h: '.$w.'x'.$h);
-    dprint('$w0 x $h0: '.$w0.'x'.$h0);
-    $img = new Imagick($image);
-
-    // parameters for the edge-maximizing crop algorithm
-    $r = 2;         // radius of edge filter
-    $nk = 3;        // scale count: number of crop sizes to try
-    $nx = 5;        // number of x-translations to try
-    $ny = 5;        // number of y-translations to try
-    $gamma = 0.8;   // edge-sum normalization parameter -- see documentation
-    $ar = $w/$h;    // target aspect ratio (AR)
-
-    // crop source img to target AR
-    if ($w0/$h0 > $ar) {
-        // source AR wider than target
-        // crop width to target AR
-        $wcrop0 = round($ar*$h0);
-        $hcrop0 = $h0;
-    } 
+    // extract the commands from the query string
+    // eg.: ?resize(....)+flip+blur(...)
+    if (isset($_GET['cmd'])) {
+        preg_match_all('/\+*(([a-z]+)(\(([^\)]*)\))?)\+*/', $_GET['cmd'],
+            $cmds, PREG_SET_ORDER);
+    }
+    // no commands specified
     else {
-        // crop height to target AR
-        $wcrop0 = $w0;
-        $hcrop0 = round($w0/$ar);
+        $cmds = Array();
     }
 
-    // crop parameters for all scales and translations
-    $params = array();
+    // prep cache path
+    $cache = get_cache($image, $cmds);
 
-    // crop at a few different scales
-    $hgap = $hcrop0 - $h;
-    $hinc = $hgap / ($nk - 1);
-    for ($k = 0; $k < $nk; $k++) {
-        $hcrop = round($hcrop0 - $k*$hinc);
-        $wcrop = $hcrop*$ar;
-        // crop at a few different locations 
-        // space translations out evenly across source image
-        $xgap = $w0 - $wcrop;
-        $xinc = $xgap / $nx;
-        $ygap = $h0 - $hcrop;
-        $yinc = $ygap / $ny;
+    // compute image if needed
+    if (!file_exists($cache)) {
+        dispatch($image, $cache, $cmds);
+    }
 
-        // crop is only slightly smaller than source
-        // proceed by 1px increments
-        $nxtemp = $nx;
-        $nytemp = $ny;
-        if ($xgap < $nx - 1) {
-            $nxtemp = $xgap + 1;
-            $xinc = 1;
+    // serve out results
+    render($cache);
+}
+
+function get_image($url) {
+    // Images must be local files, so for convenience we strip the domain if it's there
+    $image = preg_replace('/^(s?f|ht)tps?:\/\/[^\/]+/i', '', (string) $url);
+
+    // For security, directories cannot contain ':', images cannot contain '..' or '<', and
+    // images must start with '/'
+    if ($image{0} != '/' || strpos(dirname($image), ':') || preg_match('/(\.\.|<|>)/', $image))
+    {
+        header('HTTP/1.1 400 Bad Request');
+        echo 'Error: malformed image path. Image paths must begin with \'/\'';
+        exit();
+    }
+
+    // check if an image location is given
+    if (!$image)
+    {
+        header('HTTP/1.1 400 Bad Request');
+        echo 'Error: no image was specified';
+        exit();
+    }
+
+    // Strip the possible trailing slash off the document root
+    $docRoot	= rtrim(DOCUMENT_ROOT,'/');
+    $image = $docRoot . $image;
+
+    // check if the file exists
+    if (!file_exists($image))
+    {
+        header('HTTP/1.1 404 Not Found');
+        echo 'Error: image does not exist: ' . $image;
+        exit();
+    }
+    return $image;
+}
+
+function get_cache($image, $cmds) {
+    // concatenate commands for use in cache file name
+    $cache = ltrim($image, '/');
+    foreach ($cmds as $cmd) {
+        $cache .= '%'.$cmd[2].'-'.$cmd[4];
+    }
+    //$cache = str_replace('/','_',$cache);
+    $path = explode('/',$cache);
+    // remove filename
+    $cache_dirs = CACHE_PATH.implode('/', array_slice($path, 2, -1)); 
+    $cache_file = end($path);
+    $cache = $cache_dirs.'/'.$cache_file;
+    $cache = escapeshellcmd($cache);
+
+    // create cache directory path if doesn't exist
+    if (!is_dir($cache_dirs)) {
+        mkdir($cache_dirs, 0777, true);
+    }
+
+    // prepare cache
+    if (isset($_GET["cache"])) {
+        dprint('cache: '.$_GET["cache"]);
+        switch($_GET["cache"]) {
+        case 'no': 
+            $cache = CACHE_PATH."temp.jpg";
+            // no break;
+        case 'refresh': // or 'no':
+            if (file_exists($cache)) {
+                unlink($cache);
+            }
+            break;
         }
-        if ($ygap < $ny - 1) {
-            $nytemp = $ygap + 1;
-            $yinc = 1;
+    }
+    return $cache;
+}
+
+function dispatch($image, $cache, $cmds) {
+    // there is no cached image yet, so we'll need to create it first
+    // convert query string to an imagemagick command string
+    $commands = '';
+
+    foreach ($cmds as $cmd) {
+        // $cmd[2] is the command name
+        // $cmd[4] the parameter
+
+        // check input
+        if (!preg_match('/^[a-z]+$/',$cmd[2])) {
+            die('ERROR: Invalid command.');
         }
-        // generate parameters for trial crops
-        for ($i=0; $i<$nxtemp; $i++) {
-            $xcrop = round($i * $xinc);
-            for ($j=0; $j<$nytemp; $j++) {
-                $ycrop = round($j * $yinc);
-                $params[] = array('wcrop'=>$wcrop, 'hcrop'=>$hcrop, 'xcrop'=>$xcrop, 'ycrop'=>$ycrop);
+        if (!preg_match('/^[a-z0-9\/{}+-<>!@%]+$/',$cmd[4])) {
+            die('ERROR: Invalid parameter.');
+        }
+
+        // replace } with >, { with <
+        // > and < could give problems when using html
+        $cmd[4] = str_replace('}','>',$cmd[4]);
+        $cmd[4] = str_replace('{','<',$cmd[4]);
+
+        // check for special, scripted commands
+        switch ($cmd[2]) {
+        case 'colorizehex':
+            // imagemagick's colorize, but with hex-rgb colors
+            // convert to decimal rgb
+            $r = round((255 - hexdec(substr($cmd[4], 0, 2))) / 2.55);
+            $g = round((255 - hexdec(substr($cmd[4], 2, 2))) / 2.55);
+            $b = round((255 - hexdec(substr($cmd[4], 4, 2))) / 2.55);
+
+            // add command to list
+            $commands .= ' -colorize "'."$r/$g/$b".'"';
+            break;
+
+        case 'opticrop':
+            // crops the image to the requested size
+            // chooses the crop with the most edges, or "interestingness"
+            if (!preg_match('/^[0-9]+x[0-9]+$/',$cmd[4])) {
+                die('ERROR: Invalid parameter.');
+            }
+            list($width, $height) = explode('x', $cmd[4]);
+            opticrop($image, $width, $height, $cache);
+            break;
+
+        case 'part':
+            // crops the image to the requested size
+            if (!preg_match('/^[0-9]+x[0-9]+$/',$cmd[4])) {
+                die('ERROR: Invalid parameter.');
+            }
+
+            list($width, $height) = explode('x', $cmd[4]);
+
+            // get size of the original
+            $imginfo = getimagesize($image);
+            $orig_w = $imginfo[0];
+            $orig_h = $imginfo[1];
+
+            // resize image to cmd either the new width
+            // or the new height
+
+            // if original width / original height is greater
+            // than new width / new height
+            if ($orig_w/$orig_h > $width/$height) {
+                // then resize to the new height...
+                $commands .= ' -resize "x'.$height.'"';
+
+                // ... and get the middle part of the new image
+                // what is the resized width?
+                $resized_w = ($height/$orig_h) * $orig_w;
+
+                // crop
+                $commands .= ' -crop "'.$width.'x'.$height.
+                    '+'.round(($resized_w - $width)/2).'+0"';
+            } else {
+                // or else resize to the new width
+                $commands .= ' -resize "'.$width.'"';
+
+                // ... and get the middle part of the new image
+                // what is the resized height?
+                $resized_h = ($width/$orig_w) * $orig_h;
+
+                // crop
+                $commands .= ' -crop "'.$width.'x'.$height.
+                    '+0+'.round(($resized_h - $height)/2).'"';
+            }
+            break;
+
+        case 'type':
+            // convert the image to this file type
+            if (!preg_match('/^[a-z]+$/',$cmd[4])) {
+                die('ERROR: Invalid parameter.');
+            }
+            $new_type = $cmd[4];
+            break;
+
+        default:
+            // nothing special, just add the command
+            if ($cmd[4]=='') {
+                // no parameter given, eg: flip
+                $commands .= ' -'.$cmd[2].'';
+            } else {
+                $commands .= ' -'.$cmd[2].' "'.$cmd[4].'"';
             }
         }
     }
-    dprint("original:<br/><img src=\"".$_GET['src']."\"/>");
-    // crop each trial image, save the one with most edges
-    $i = 0;
-    $maximg = clone $img;
-    $maxbetanorm = 0;
-    $maxparam = "";
-    foreach ($params as $param) {
-        $i++;
-        $currfile = $cache_path."image$i.jpg";
-        $beta = 0;
-        $currimg = clone $img;
-        $currimg->cropImage($param['wcrop'],$param['hcrop'],$param['xcrop'],$param['ycrop']);
-        $currimgcp = clone $currimg;        // save for output
-        $currimg->edgeImage($r);
-        $currimg->modulateImage(100,0,100); // grayscale
-        $currimg->writeImage($currfile);    // save for debug
-        $pi = $currimg->getPixelIterator();
-        foreach ($pi as $row=>$pixels) {
-            foreach($pixels as $column=>$pixel) {
-                $beta += $pixel->getColorValue(imagick::COLOR_RED);
-            }
+
+    // run Imagemagick from command line if needed
+    if ($commands) {
+        // create the convert-command
+        $convert = CONVERT_PATH.' '.$commands.' "'.$image.'" ';
+        if (isset($new_type)) {
+            // send file type-command to imagemagick
+            $convert .= $new_type.':';
         }
-        $area = $param['wcrop'] * $param['hcrop'];
-        $betanorm = $beta / pow($area, $gamma);
-        dprint("$currfile (beta=$beta, normalized=$betanorm):<br/>\n<img src=\"$currfile\"/>");
-        dprint($param, true);
-        // best image found, save it
-        if ($betanorm > $maxbetanorm) {
-            $maxbetanorm = $betanorm;
-            $maxfile = $currfile;
-            $maximg->destroy();
-            $maximg = $currimgcp;
-        }
-        else {
-            $currimg->destroy();
-            $currimgcp->destroy();
-        }
+        $convert .= '"'.$cache.'"';
+
+        // execute imagemagick's convert, save output as $cache
+        exec($convert);
+        dprint($cache);
     }
-    $img->destroy();
-    $img = $maximg;
-    $img->scaleImage($w,$h);
-    $img->writeImage($out);
-    $outsub = str_replace("^%","%5E%25",$out);
-    dprint("maxfile: $maxfile");
-    dprint("output:<br/><img src=\"/process/$outsub\"/>");
-    return;
+
+    // there should be a file named $cache now
+    if (!file_exists($cache)) {
+        die('ERROR: Image conversion failed.');
+    }
+
+    // make cache easily writeable so anyone can clear it
+    chmod($cache, 0777);
 }
 
 /* 
@@ -196,229 +294,137 @@ function dprint($str, $print_r=false) {
     }
 }
 
-//  location of cached images (with trailing /)
-$cache_path = 'imagecache/';
+/* 
+ * edge-maximizing crop
+ *
+ * generates a thumbnail of desired dimensions from a source image by cropping 
+ * the most "interesting" or edge-filled part of the image.
+ *
+ * $w, $h - target dimensions of thumbnail
+ * $image - system path to source image
+ * $out - path/name of output image
+ */
 
-//  location of imagemagick's convert utility
-//$convert_path = '/usr/local/bin/convert';
-$convert_path = 'convert';
+function opticrop($image, $w, $h, $out) {
+    // get size of the original
+    $imginfo = getimagesize($image);
+    $w0 = $imginfo[0];
+    $h0 = $imginfo[1];
+    if ($w > $w0 || $h > $h0)
+        die("Target dimensions must be smaller or equal to source dimensions.");
 
-// Images must be local files, so for convenience we strip the domain if it's there
-$image			= preg_replace('/^(s?f|ht)tps?:\/\/[^\/]+/i', '', (string) $_GET['src']);
+    // parameters for the edge-maximizing crop algorithm
+    $r = 2;         // radius of edge filter
+    $nk = 3;        // scale count: number of crop sizes to try
+    $nx = 5;        // number of x-translations to try
+    $ny = 5;        // number of y-translations to try
+    $gamma = 0.8;   // edge-sum normalization parameter -- see documentation
+    $ar = $w/$h;    // target aspect ratio (AR)
 
-// For security, directories cannot contain ':', images cannot contain '..' or '<', and
-// images must start with '/'
-if ($image{0} != '/' || strpos(dirname($image), ':') || preg_match('/(\.\.|<|>)/', $image))
-{
-	header('HTTP/1.1 400 Bad Request');
-	echo 'Error: malformed image path. Image paths must begin with \'/\'';
-	exit();
-}
+    dprint('$img: '.$image);
+    dprint('$w x $h: '.$w.'x'.$h);
+    dprint('$w0 x $h0: '.$w0.'x'.$h0);
+    $img = new Imagick($image);
 
-// check if an image location is given
-if (!$image)
-{
-	header('HTTP/1.1 400 Bad Request');
-	echo 'Error: no image was specified';
-	exit();
-}
+    // crop source img to target AR
+    if ($w0/$h0 > $ar) {
+        // source AR wider than target
+        // crop width to target AR
+        $wcrop0 = round($ar*$h0);
+        $hcrop0 = $h0;
+    } 
+    else {
+        // crop height to target AR
+        $wcrop0 = $w0;
+        $hcrop0 = round($w0/$ar);
+    }
 
-// Strip the possible trailing slash off the document root
-$docRoot	= rtrim(DOCUMENT_ROOT,'/');
-$image = $docRoot . $image;
+    // crop parameters for all scales and translations
+    $params = array();
 
-// check if the file exists
-if (!file_exists($image))
-{
-	header('HTTP/1.1 404 Not Found');
-	echo 'Error: image does not exist: ' . $image;
-	exit();
-}
+    // crop at different scales
+    $hgap = $hcrop0 - $h;
+    $hinc = $hgap / ($nk - 1);
+    for ($k = 0; $k < $nk; $k++) {
+        $hcrop = round($hcrop0 - $k*$hinc);
+        $wcrop = $hcrop*$ar;
+        // crop at different locations 
+        // space translations out evenly across source image
+        $xgap = $w0 - $wcrop;
+        $xinc = $xgap / $nx;
+        $ygap = $h0 - $hcrop;
+        $yinc = $ygap / $ny;
 
-// extract the commands from the query string
-// eg.: ?resize(....)+flip+blur(...)
-if (isset($_GET['cmd'])) {
-    preg_match_all('/\+*(([a-z]+)(\(([^\)]*)\))?)\+*/',
-                $_GET['cmd'],
-                $matches, PREG_SET_ORDER);
-}
-// no commands specified
-else {
-    $matches = Array();
-}
-
-// concatenate commands for use in cache file name
-$cache = ltrim($image, '/');
-foreach ($matches as $match) {
-    $cache .= '%'.$match[2].'-'.$match[4];
-}
-//$cache = str_replace('/','_',$cache);
-$path = explode('/',$cache);
-$cache_dirs = $cache_path.implode('/', array_slice($path, 2, -1)); // remove filename
-$cache_file = end($path);
-$cache = $cache_dirs.'/'.$cache_file;
-$cache = escapeshellcmd($cache);
-
-//echo $cache_file.'<br/>';
-//echo $cache_dirs.'<br/>';
-//echo $cache.'<br/>';
-
-// create cache directory path if doesn't exist
-if (!is_dir($cache_dirs)) {
-    mkdir($cache_dirs, 0777, true);
-}
-
-// prepare cache
-if (isset($_GET["cache"])) {
-    dprint('cache: '.$_GET["cache"]);
-    switch($_GET["cache"]) {
-        case 'no': 
-            $cache = $cache_path."temp.jpg";
-            // no break;
-        case 'refresh':
-            if (file_exists($cache)) {
-                unlink($cache);
+        // crop is only slightly smaller than source
+        // proceed by 1px increments
+        $nxtemp = $nx;
+        $nytemp = $ny;
+        if ($xgap < $nx - 1) {
+            $nxtemp = $xgap + 1;
+            $xinc = 1;
+        }
+        if ($ygap < $ny - 1) {
+            $nytemp = $ygap + 1;
+            $yinc = 1;
+        }
+        // generate parameters for trial crops
+        for ($i=0; $i<$nxtemp; $i++) {
+            $xcrop = round($i * $xinc);
+            for ($j=0; $j<$nytemp; $j++) {
+                $ycrop = round($j * $yinc);
+                $params[] = array('wcrop'=>$wcrop, 'hcrop'=>$hcrop, 'xcrop'=>$xcrop, 'ycrop'=>$ycrop);
             }
-            break;
-    }
-}
-
-if (!file_exists($cache)) {
-    // there is no cached image yet, so we'll need to create it first
-
-    // convert query string to an imagemagick command string
-    $commands = '';
-    
-    foreach ($matches as $match) {
-        // $match[2] is the command name
-        // $match[4] the parameter
-        
-        // check input
-        if (!preg_match('/^[a-z]+$/',$match[2])) {
-            die('ERROR: Invalid command.');
-        }
-        if (!preg_match('/^[a-z0-9\/{}+-<>!@%]+$/',$match[4])) {
-            die('ERROR: Invalid parameter.');
-        }
-    
-        // replace } with >, { with <
-        // > and < could give problems when using html
-        $match[4] = str_replace('}','>',$match[4]);
-        $match[4] = str_replace('{','<',$match[4]);
-
-        // check for special, scripted commands
-        $noconvert = false;
-        switch ($match[2]) {
-            case 'colorizehex':
-                // imagemagick's colorize, but with hex-rgb colors
-                // convert to decimal rgb
-                $r = round((255 - hexdec(substr($match[4], 0, 2))) / 2.55);
-                $g = round((255 - hexdec(substr($match[4], 2, 2))) / 2.55);
-                $b = round((255 - hexdec(substr($match[4], 4, 2))) / 2.55);
-
-                // add command to list
-                $commands .= ' -colorize "'."$r/$g/$b".'"';
-                break;
-
-            case 'opticrop':
-                // crops the image to the requested size
-                // chooses the crop with the most edges, or "interestingness"
-                if (!preg_match('/^[0-9]+x[0-9]+$/',$match[4])) {
-                    die('ERROR: Invalid parameter.');
-                }
-
-                list($width, $height) = explode('x', $match[4]);
-
-                opticrop($image, $width, $height, $cache);
-                $noconvert = true;
-                break;
-
-            case 'part':
-                // crops the image to the requested size
-                if (!preg_match('/^[0-9]+x[0-9]+$/',$match[4])) {
-                    die('ERROR: Invalid parameter.');
-                }
-
-                list($width, $height) = explode('x', $match[4]);
-
-                // get size of the original
-                $imginfo = getimagesize($image);
-                $orig_w = $imginfo[0];
-                $orig_h = $imginfo[1];
-
-                // resize image to match either the new width
-                // or the new height
-
-                // if original width / original height is greater
-                // than new width / new height
-                if ($orig_w/$orig_h > $width/$height) {
-                    // then resize to the new height...
-                    $commands .= ' -resize "x'.$height.'"';
-
-                    // ... and get the middle part of the new image
-                    // what is the resized width?
-                    $resized_w = ($height/$orig_h) * $orig_w;
-
-                    // crop
-                    $commands .= ' -crop "'.$width.'x'.$height.
-                    '+'.round(($resized_w - $width)/2).'+0"';
-                } else {
-                    // or else resize to the new width
-                    $commands .= ' -resize "'.$width.'"';
-
-                    // ... and get the middle part of the new image
-                    // what is the resized height?
-                    $resized_h = ($width/$orig_w) * $orig_h;
-
-                    // crop
-                    $commands .= ' -crop "'.$width.'x'.$height.
-                     '+0+'.round(($resized_h - $height)/2).'"';
-                }
-                break;
-
-            case 'type':
-                // convert the image to this file type
-                if (!preg_match('/^[a-z]+$/',$match[4])) {
-                    die('ERROR: Invalid parameter.');
-                }
-                $new_type = $match[4];
-                break;
-            default:
-                // nothing special, just add the command
-                if ($match[4]=='') {
-                    // no parameter given, eg: flip
-                    $commands .= ' -'.$match[2].'';
-                } else {
-                    $commands .= ' -'.$match[2].' "'.$match[4].'"';
-                }
         }
     }
-
-    // create the convert-command
-    $convert = $convert_path.' '.$commands.' "'.$image.'" ';
-    if (isset($new_type)) {
-        // send file type-command to imagemagick
-        $convert .= $new_type.':';
+    dprint("original:<br/><img src=\"".$_GET['src']."\"/>");
+    // crop each trial image, save the one with most edges
+    $i = 0;
+    $maximg = clone $img;
+    $maxbetanorm = 0;
+    $maxparam = "";
+    foreach ($params as $param) {
+        $i++;
+        $currfile = CACHE_PATH."image$i.jpg";
+        $beta = 0;
+        $currimg = clone $img;
+        $currimg->cropImage($param['wcrop'],$param['hcrop'],$param['xcrop'],$param['ycrop']);
+        $currimgcp = clone $currimg;        // save for output
+        $currimg->edgeImage($r);
+        $currimg->modulateImage(100,0,100); // grayscale
+        $currimg->writeImage($currfile);    // save for debug
+        $pi = $currimg->getPixelIterator();
+        foreach ($pi as $row=>$pixels) {
+            foreach($pixels as $column=>$pixel) {
+                $beta += $pixel->getColorValue(imagick::COLOR_RED);
+            }
+        }
+        $area = $param['wcrop'] * $param['hcrop'];
+        $betanorm = $beta / pow($area, $gamma);
+        dprint("$currfile (beta=$beta, normalized=$betanorm):<br/>\n<img src=\"$currfile\"/>");
+        dprint($param, true);
+        // best image found, save it
+        if ($betanorm > $maxbetanorm) {
+            $maxbetanorm = $betanorm;
+            $maxfile = $currfile;
+            $maximg->destroy();
+            $maximg = $currimgcp;
+        }
+        else {
+            $currimg->destroy();
+            $currimgcp->destroy();
+        }
     }
-    $convert .= '"'.$cache.'"';
-
-    //echo $convert.'<br/>';
-    //echo getcwd();
-    //$output = Array();
-    // execute imagemagick's convert, save output as $cache
-    if (!$noconvert) {
-        exec($convert);
-    }
-    dprint($cache);
-    chmod($cache, 0777);
+    $img->destroy();
+    $img = $maximg;
+    $img->scaleImage($w,$h);
+    $img->writeImage($out);
+    $outsub = str_replace("^%","%5E%25",$out);
+    dprint("maxfile: $maxfile");
+    dprint("output:<br/><img src=\"/process/$outsub\"/>");
+    exit();
 }
 
-// there should be a file named $cache now
-if (!file_exists($cache)) {
-        die('ERROR: Image conversion failed.');
-}
-
-if (!$noconvert)
-    render($cache);
+// execute the script
+main();
 
 ?>
