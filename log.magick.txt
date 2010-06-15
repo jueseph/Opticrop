@@ -14,3 +14,159 @@ Tue, 15 Jun 10 12:02:42 -0400
 src=http://localhost/process/test2.jpg&cmd=opticrop(80x80)&cache=no
 22.660336 s
 
+Tue, 15 Jun 10 12:19:19 -0400
+src=http://localhost/process/test2.jpg&cmd=opticrop(80x80)&cache=no
+23.909308 s
+
+Tue, 15 Jun 10 12:22:53 -0400
+src=http://localhost/process/test2.jpg&cmd=opticrop(80x80)&cache=no
+24.330413 s
+
+Tue, 15 Jun 10 12:25:08 -0400
+src=http://localhost/process/test2.jpg&cmd=opticrop(80x80)&cache=no
+8.708870 s
+
+Tue, 15 Jun 10 12:26:22 -0400
+src=http://localhost/process/test2.jpg&cmd=opticrop(80x80)&cache=no
+5.246687 s
+
+Tue, 15 Jun 10 12:46:22 -0400
+src=http://localhost/process/test2.jpg&cmd=opticrop(80x80)&cache=no
+5.161793 s
+
+Tue, 15 Jun 10 13:01:03 -0400
+src=http://localhost/process/test2.jpg&cmd=opticrop2(80x80)&cache=no
+5.185695 s
+
+Tue, 15 Jun 10 13:01:37 -0400
+src=http://localhost/process/test2.jpg&cmd=opticrop2(80x80)&cache=no
+5.166106 s
+
+Tue, 15 Jun 10 13:02:03 -0400
+src=http://localhost/process/test2.jpg&cmd=opticrop2(80x80)&cache=no
+5.222418 s
+
+Tue, 15 Jun 10 13:03:01 -0400
+src=http://localhost/process/test2.jpg&cmd=opticrop(80x80)&cache=no
+5.302782 s
+
+Tue, 15 Jun 10 13:05:33 -0400
+src=http://localhost/process/test2.jpg&cmd=opticrop(80x80)&cache=no
+5.200857 s
+
+Tue, 15 Jun 10 13:11:27 -0400
+src=http://localhost/process/test2.jpg&cmd=opticrop2(80x80)&cache=no
+2.580231 s
+
+Tue, 15 Jun 10 13:13:58 -0400
+src=http://localhost/process/test2.jpg&cmd=opticrop2(80x80)&cache=no
+2.704279 s
+
+Tue, 15 Jun 10 13:14:20 -0400
+src=http://localhost/process/test2.jpg&cmd=opticrop2(80x80)&cache=no
+2.665336 s
+
+Tue, 15 Jun 10 13:15:02 -0400
+src=http://localhost/process/test.jpg&cmd=opticrop2(80x80)&cache=no
+1.431429 s
+
+Tue, 15 Jun 10 13:15:26 -0400
+src=http://localhost/process/test.jpg&cmd=opticrop2(80x80)&cache=no
+1.385252 s
+
+Tue, 15 Jun 10 13:15:35 -0400
+src=http://localhost/process/test3.jpg&cmd=opticrop2(80x80)&cache=no
+1.973742 s
+
+Tue, 15 Jun 10 13:18:25 -0400
+src=http://localhost/process/test3.jpg&cmd=opticrop2(80x80)&cache=no
+0.131419 s
+
+Tue, 15 Jun 10 13:18:59 -0400
+src=http://localhost/process/test3.jpg&cmd=opticrop2(80x80)&cache=no
+0.180925 s
+
+Tue, 15 Jun 10 13:24:04 -0400
+src=http://localhost/process/test3.jpg&cmd=opticrop2(80x80)&cache=no
+0.579474 s
+
+Tue, 15 Jun 10 13:24:08 -0400
+src=http://localhost/process/test3.jpg&cmd=opticrop2(80x80)&cache=no
+0.581343 s
+
+Tue, 15 Jun 10 13:24:09 -0400
+src=http://localhost/process/test3.jpg&cmd=opticrop2(80x80)&cache=no
+0.578567 s
+
+Tue, 15 Jun 10 13:24:18 -0400
+src=http://localhost/process/test3.jpg&cmd=opticrop2(80x80)&cache=no
+0.346949 s
+
+Tue, 15 Jun 10 13:24:21 -0400
+src=http://localhost/process/test3.jpg&cmd=opticrop2(80x80)&cache=no
+0.347361 s
+
+Tue, 15 Jun 10 13:24:42 -0400
+src=http://localhost/process/test3.jpg&cmd=opticrop2(80x80)&cache=no
+0.338200 s
+
+Tue, 15 Jun 10 13:24:43 -0400
+src=http://localhost/process/test3.jpg&cmd=opticrop2(80x80)&cache=no
+0.336102 s
+
+Tue, 15 Jun 10 13:25:18 -0400
+src=http://localhost/process/test3.jpg&cmd=opticrop2(80x80)&cache=no
+0.337888 s
+
+Tue, 15 Jun 10 13:25:19 -0400
+src=http://localhost/process/test3.jpg&cmd=opticrop2(80x80)&cache=no
+0.339524 s
+
+Tue, 15 Jun 10 13:33:09 -0400
+src=http://localhost/process/test3.jpg&cmd=liquid-rescale(80x80)&cache=no
+0.615347 s
+
+Tue, 15 Jun 10 13:38:58 -0400
+src=http://localhost/process/test3.jpg&cmd=opticrop2(80x80)&cache=no
+0.333605 s
+
+Tue, 15 Jun 10 13:50:09 -0400
+src=http://localhost/process/test3.jpg&cmd=opticrop2(80x80)&cache=no
+0.268954 s
+
+Tue, 15 Jun 10 13:56:46 -0400
+src=http://localhost/process/test3.jpg&cmd=opticrop2(80x80)&cache=no
+0.209014 s
+
+Tue, 15 Jun 10 14:02:00 -0400
+src=http://localhost/process/test3.jpg&cmd=liquid-rescale(80x80)&cache=no
+0.722336 s
+
+Tue, 15 Jun 10 14:02:34 -0400
+src=http://localhost/process/test3.jpg&cmd=opticrop2(80x80)&cache=no
+2.451102 s
+
+Tue, 15 Jun 10 14:04:16 -0400
+src=http://localhost/process/test2.jpg&cmd=opticrop2(80x80)&cache=no
+3.368485 s
+
+Tue, 15 Jun 10 14:10:34 -0400
+src=http://localhost/process/test2.jpg&cmd=opticrop2(80x80)&cache=no
+0.828532 s
+
+Tue, 15 Jun 10 14:11:04 -0400
+src=http://localhost/process/test2.jpg&cmd=opticrop2(80x80)&cache=no
+0.796737 s
+
+Tue, 15 Jun 10 14:11:08 -0400
+src=http://localhost/process/test2.jpg&cmd=opticrop2(80x80)&cache=no
+0.809470 s
+
+Tue, 15 Jun 10 14:11:17 -0400
+src=http://localhost/process/test2.jpg&cmd=opticrop2(80x80)&cache=no
+0.800381 s
+
+Tue, 15 Jun 10 14:11:27 -0400
+src=http://localhost/process/test2.jpg&cmd=opticrop2(80x80)&cache=no
+0.845161 s
+
