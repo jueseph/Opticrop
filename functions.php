@@ -1,14 +1,14 @@
 <?php
 
 /* 
- * 2nd generation edge-maxing crop
+ * edge-maxing crop - determines center-of-edginess
  *
  * $w, $h - target dimensions of thumbnail
  * $image - system path to source image
  * $out - path/name of output image
  */
 
-function opticrop2($image, $w, $h, $out) {
+function opticrop($image, $w, $h, $out) {
     //mt_srand(6);
     // get size of the original
     $imginfo = getimagesize($image);
@@ -136,7 +136,8 @@ function opticrop2($image, $w, $h, $out) {
 }
 
 /* 
- * edge-maximizing crop
+ * edge-maximizing crop - tries different crops in a grid
+ * very slow - use opticrop instead
  *
  * generates a thumbnail of desired dimensions from a source image by cropping 
  * the most "interesting" or edge-filled part of the image.
@@ -146,7 +147,7 @@ function opticrop2($image, $w, $h, $out) {
  * $out - path/name of output image
  */
 
-function opticrop($image, $w, $h, $out) {
+function opticrop2($image, $w, $h, $out) {
     // get size of the original
     $imginfo = getimagesize($image);
     $w0 = $imginfo[0];
@@ -265,47 +266,4 @@ function opticrop($image, $w, $h, $out) {
     return 0;
 }
 
-
-/*
- * Given a target $width and $height, returns an imagemagick command
- * string that will resize a source $image to those
- * dimensions while cropping it to the target aspect ratio
- */
-function part($image, $width, $height) {
-    $commands = '';
-    // get size of the original
-    $imginfo = getimagesize($image);
-    $orig_w = $imginfo[0];
-    $orig_h = $imginfo[1];
-
-    // resize image to cmd either the new width
-    // or the new height
-
-    // if original width / original height is greater
-    // than new width / new height
-    if ($orig_w/$orig_h > $width/$height) {
-        // then resize to the new height...
-        $commands .= ' -resize "x'.$height.'"';
-
-        // ... and get the middle part of the new image
-        // what is the resized width?
-        $resized_w = ($height/$orig_h) * $orig_w;
-
-        // crop
-        $commands .= ' -crop "'.$width.'x'.$height.
-            '+'.round(($resized_w - $width)/2).'+0"';
-    } else {
-        // or else resize to the new width
-        $commands .= ' -resize "'.$width.'"';
-
-        // ... and get the middle part of the new image
-        // what is the resized height?
-        $resized_h = ($width/$orig_w) * $orig_h;
-
-        // crop
-        $commands .= ' -crop "'.$width.'x'.$height.
-            '+0+'.round(($resized_h - $height)/2).'"';
-    }
-    return $commands;
-}
 ?>

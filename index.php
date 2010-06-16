@@ -1,4 +1,9 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', '1');
+date_default_timezone_set('America/New_York');
+
+// constants
 define('DOCUMENT_ROOT', $_SERVER['DOCUMENT_ROOT']);
 // location of cached images (with trailing /)
 define('CACHE_PATH', 'imagecache/');
@@ -6,12 +11,12 @@ define('CACHE_PATH', 'imagecache/');
 define('CONVERT_PATH', 'convert');//'/usr/local/bin/convert';
 define('LOG_PATH', 'log.magick.txt');
 // toggle output of dprint() function
-define('DEBUG', 0);
-error_reporting(E_ALL);
-ini_set('display_errors', '1');
+if (isset($_GET['debug']) && $_GET['debug'] == 1) define('DEBUG', 1);
+else define('DEBUG', 0);
 
-// cropping algorithms
-include_once('functions.php');
+// cropping functions 
+include_once('part.php');
+include_once('opticrop.php');
 
 // execute the script
 main();
@@ -21,34 +26,34 @@ function main() {
     $timeparts = explode(' ',microtime());
     $starttime = $timeparts[1].substr($timeparts[0],1);
     
-    // open log file
-    $lf = fopen(LOG_PATH, 'a');
-
-    // prep image path
-    $image = get_image($_GET['src']);
+    // find source image
+    if (isset($_GET['src'])) {
+        $image = get_image_path($_GET['src']);
+    }
+    else {
+        header('HTTP/1.1 400 Bad Request');
+        die('Error: no image was specified');
+    }
 
     // extract the commands from the query string
-    // eg.: ?resize(....)+flip+blur(...)
+    // eg.: cmd=resize(....)+flip+blur(...)
     if (isset($_GET['cmd'])) {
-        preg_match_all('/\+*(([a-z\-]+[0-9]*)(\(([^\)]*)\))?)\+*/', $_GET['cmd'],
+        preg_match_all('/\+*(([a-z\-]+[0-9]*)(\(([^\)]*)\))?)\+*/', 
+            $_GET['cmd'],
             $cmds, PREG_SET_ORDER);
-    }
-    // no commands specified
-    else {
-        $cmds = Array();
-    }
-
-    // prep cache path
-    $cache = get_cache($image, $cmds);
-
-    // compute image if needed
-    $result = 0;
-    if (!file_exists($cache)) {
+        // prep cache path
+        $cache = get_cache_path($image, $cmds);
+        // compute image if needed
         $result = dispatch($image, $cache, $cmds);
     }
+    // no commands, just show source image
+    else {
+        $cache = $image;
+        $result = 0;
+    }
 
-    // show source image for comparison
     if (DEBUG == 1) {
+        // show source image for comparison
         render(end(explode('/', $image)), true);
         echo "<br/>";
     }
@@ -62,13 +67,16 @@ function main() {
     $endtime = $timeparts[1].substr($timeparts[0],1);
     $elapsed = bcsub($endtime,$starttime,6);
     dprint("<br/>Script execution time (s): ".$elapsed);
+
+    // log results
+    $lf = fopen(LOG_PATH, 'a');
     $logstring = date(DATE_RFC822)."\n".
         $_SERVER["QUERY_STRING"]."\n$elapsed s\n\n";
     fwrite($lf, $logstring);
     fclose($lf);
 }
 
-function get_image($url) {
+function get_image_path($url) {
     // Images must be local files, so for convenience we strip the domain if it's there
     $image = preg_replace('/^(s?f|ht)tps?:\/\/[^\/]+/i', '', (string) $url);
 
@@ -90,7 +98,7 @@ function get_image($url) {
     }
 
     // Strip the possible trailing slash off the document root
-    $docRoot	= rtrim(DOCUMENT_ROOT,'/');
+    $docRoot = rtrim(DOCUMENT_ROOT,'/');
     $image = $docRoot . $image;
 
     // check if the file exists
@@ -103,11 +111,11 @@ function get_image($url) {
     return $image;
 }
 
-function get_cache($image, $cmds) {
+function get_cache_path($image, $cmds) {
     // concatenate commands for use in cache file name
     $cache = ltrim($image, '/');
     foreach ($cmds as $cmd) {
-        $cache .= '%'.$cmd[2].'-'.$cmd[4];
+        $cache .= '-'.$cmd[2].'-'.$cmd[4];
     }
     //$cache = str_replace('/','_',$cache);
     $path = explode('/',$cache);
@@ -122,28 +130,30 @@ function get_cache($image, $cmds) {
         mkdir($cache_dirs, 0777, true);
     }
 
-    // prepare cache
+    return $cache;
+}
+
+function dispatch($image, $cache, $cmds) {
+    // get cache
+    dprint('cache: '.$_GET["cache"]);
+    if (file_exists($cache)) {
+        dprint('cached image retrieved');
+        return 0;
+    }
+    // no cache or cache disabled, compute image
     if (isset($_GET["cache"])) {
-        dprint('cache: '.$_GET["cache"]);
         switch($_GET["cache"]) {
         case 'no': 
             $cache = CACHE_PATH."temp.jpg";
-            // no break;
         case 'refresh': // or 'no':
             if (file_exists($cache)) {
                 unlink($cache);
             }
             break;
         }
-    }
-    return $cache;
-}
-
-function dispatch($image, $cache, $cmds) {
-    // there is no cached image yet, so we'll need to create it first
+    }   
     // convert query string to an imagemagick command string
     $commands = '';
-
     foreach ($cmds as $cmd) {
         // $cmd[2] is the command name
         // $cmd[4] the parameter
@@ -174,58 +184,6 @@ function dispatch($image, $cache, $cmds) {
             $commands .= ' -colorize "'."$r/$g/$b".'"';
             break;
 
-        case 'opticrop':
-            if (function_exists('opticrop')) {
-                // crops the image to the requested size
-                // chooses the crop with the most edges, or "interestingness"
-                if (!preg_match('/^[0-9]+x[0-9]+$/',$cmd[4])) {
-                    die('ERROR: Invalid parameter.');
-                }
-                list($width, $height) = explode('x', $cmd[4]);
-                $result = opticrop($image, $width, $height, $cache);
-            }
-            else {
-                die('Function does not exist. Check includes.');
-            }
-            break;
-
-         case 'liquid':
-            if (function_exists('opticrop')) {
-                if (!preg_match('/^[0-9]+x[0-9]+$/',$cmd[4])) {
-                    die('ERROR: Invalid parameter.');
-                }
-                list($w, $h) = explode('x', $cmd[4]);
-                $im = new Imagick($image);
-                $im->liquidRescaleImage( $w, $h, 3, 25 );
-                $im->writeImage($cache);
-            }
-            else {
-                die('Function does not exist. Check includes.');
-            }
-            break;
-
-       case 'opticrop2':
-            if (function_exists('opticrop2')) {
-                // refinement of opticrop 1
-                if (!preg_match('/^[0-9]+x[0-9]+$/',$cmd[4])) {
-                    die('ERROR: Invalid parameter.');
-                }
-                list($width, $height) = explode('x', $cmd[4]);
-                $result = opticrop2($image, $width, $height, $cache);
-            }
-            break;
-
-        case 'part':
-            if (function_exists('part')) {
-                // crops the image to the requested size
-                if (!preg_match('/^[0-9]+x[0-9]+$/',$cmd[4])) {
-                    die('ERROR: Invalid parameter.');
-                }
-                list($width, $height) = explode('x', $cmd[4]);
-                $commands .= part($image, $width, $height);
-            }
-            break;
-
         case 'type':
             // convert the image to this file type
             if (!preg_match('/^[a-z]+$/',$cmd[4])) {
@@ -234,7 +192,56 @@ function dispatch($image, $cache, $cmds) {
             $new_type = $cmd[4];
             break;
 
+        /*
+         * crops image to target aspect ratio, then resizes
+         * to target dimensions.
+         */
+        case 'part':
+            // get size of the original
+            $imginfo = getimagesize($image);
+            $orig_w = $imginfo[0];
+            $orig_h = $imginfo[1];
+
+            // if original width / original height is greater
+            // than new width / new height
+            if ($orig_w/$orig_h > $width/$height) {
+                // then resize to the new height...
+                $commands .= ' -resize "x'.$height.'"';
+
+                // ... and get the middle part of the new image
+                // what is the resized width?
+                $resized_w = ($height/$orig_h) * $orig_w;
+
+                // crop
+                $commands .= ' -crop "'.$width.'x'.$height.
+                    '+'.round(($resized_w - $width)/2).'+0"';
+            } else {
+                // or else resize to the new width
+                $commands .= ' -resize "'.$width.'"';
+
+                // ... and get the middle part of the new image
+                // what is the resized height?
+                $resized_h = ($width/$orig_w) * $orig_h;
+
+                // crop
+                $commands .= ' -crop "'.$width.'x'.$height.
+                    '+0+'.round(($resized_h - $height)/2).'"';
+            }
+            break;
+
+        /*
+         * custom commands that run as standalone functions
+         * or arbitrary imagemagick commands
+         */
         default:
+            if (function_exists($cmd[2])) {
+                if (!preg_match('/^[0-9]+x[0-9]+$/',$cmd[4])) {
+                    die('ERROR: Invalid parameter.');
+                }
+                list($width, $height) = explode('x', $cmd[4]);
+                $result = $cmd[2]($image, $width, $height, $cache);
+            }
+
             // nothing special, just add the command
             if ($cmd[4]=='') {
                 // no parameter given, eg: flip
@@ -257,9 +264,9 @@ function dispatch($image, $cache, $cmds) {
 
         // execute imagemagick's convert, save output as $cache
         $result = exec($convert);
-        dprint($cache);
     }
 
+    dprint($cache);
     // there should be a file named $cache now
     if (!file_exists($cache)) {
         die('ERROR: Image conversion failed.');
@@ -280,8 +287,7 @@ function dispatch($image, $cache, $cmds) {
  */
 function render($cache, $as_html=false) {
     if ($as_html) {
-        $outsub = str_replace("^%","%5E%25",$cache);
-        echo "<img src=\"$outsub\"/>";
+        echo "<img src=\"$cache\"/>";
         return;
     }
     // get image data for use in http-headers
