@@ -1,26 +1,59 @@
 <?php
-error_reporting(E_ALL);
-ini_set('display_errors', '1');
-date_default_timezone_set('America/New_York');
+/*
+ * Opticrop
+ * An optimized cropping utility, built into a wrapper for the ImageMagick 
+ * command-line tool 'convert'
+ *
+ * @author Jue Wang (jue@jueseph.com)
+ * @modified 6/16/2010
+ *
+ * Based on code from:
+ * http://www.theukwebdesigncompany.com/articles/php-imagemagick.php
+ * http://shiftingpixel.com/2008/03/03/smart-image-resizer/
+ *
+ */
 
-// constants
+/* basic housekeeping */
+error_reporting(E_ALL);
+ini_set('display_errors', '1'); // debug use; set to 0 for production
+date_default_timezone_set('America/New_York');  // for script timer
+mt_srand(1);    // seed RNG to get consistent results
+                // comment out for debug
+
+/* constants */
 define('DOCUMENT_ROOT', $_SERVER['DOCUMENT_ROOT']);
 // location of cached images (with trailing /)
 define('CACHE_PATH', 'imagecache/');
 // location of imagemagick's convert utility
 define('CONVERT_PATH', 'convert');//'/usr/local/bin/convert';
 define('LOG_PATH', 'log.magick.txt');
-// toggle output of dprint() function
+
+/* global parameters (and defaults) */
 if (isset($_GET['debug']) && $_GET['debug'] == 1) define('DEBUG', 1);
 else define('DEBUG', 0);
+if (isset($_GET["cache"])) define('CACHING',$_GET["cache"]);
+else define('CACHING','yes');
+if (isset($_GET['format'])) define('FORMAT',$_GET['format']);
+else define('FORMAT', 'img');
 
-// cropping functions 
-include_once('part.php');
-include_once('opticrop.php');
+/* cropping functions */
+include_once('functions.php');
 
-// execute the script
+/* prints debug messages */
+function dprint($str, $print_r=false) {
+    if (DEBUG > 0) {
+        if ($print_r) {
+            print_r($str);
+            echo "<br/>\n";
+        }
+        else {
+            echo $str."<br/>\n";
+        }
+    }
+}
+
+/* execute the script */
 main();
-
 function main() {
     // start timer
     $timeparts = explode(' ',microtime());
@@ -42,7 +75,7 @@ function main() {
             $_GET['cmd'],
             $cmds, PREG_SET_ORDER);
         // prep cache path
-        $cache = get_cache_path($image, $cmds);
+        $cache = get_cache_path($image, $cmds, FORMAT);
         // compute image if needed
         $result = dispatch($image, $cache, $cmds);
     }
@@ -54,12 +87,8 @@ function main() {
 
     if (DEBUG == 1) {
         // show source image for comparison
-        render(end(explode('/', $image)), true);
+        render(end(explode('/', $image)), true, 'img');
         echo "<br/>";
-    }
-    // serve out results
-    if ($result == 0) {
-        render($cache, (DEBUG==1)?true:false);
     }
 
     // end timer
@@ -67,6 +96,9 @@ function main() {
     $endtime = $timeparts[1].substr($timeparts[0],1);
     $elapsed = bcsub($endtime,$starttime,6);
     dprint("<br/>Script execution time (s): ".$elapsed);
+
+    // serve out results
+    render($cache, (DEBUG==1)?true:false, FORMAT);
 
     // log results
     $lf = fopen(LOG_PATH, 'a');
@@ -76,6 +108,13 @@ function main() {
     fclose($lf);
 }
 
+/* 
+ * returns local system path for an image
+ * doesn't work if image isn't on this domain
+ *
+ * $url - url of image on the same domain as this script
+ *
+ */
 function get_image_path($url) {
     // Images must be local files, so for convenience we strip the domain if it's there
     $image = preg_replace('/^(s?f|ht)tps?:\/\/[^\/]+/i', '', (string) $url);
@@ -111,7 +150,13 @@ function get_image_path($url) {
     return $image;
 }
 
-function get_cache_path($image, $cmds) {
+/*
+ * returns a path to the cache for an image, given a set of commands
+ *
+ * $image - path to source image
+ * $cmds - array of commands/parameters for the operation on this image
+ */
+function get_cache_path($image, $cmds, $format='img') {
     // concatenate commands for use in cache file name
     $cache = ltrim($image, '/');
     foreach ($cmds as $cmd) {
@@ -122,7 +167,7 @@ function get_cache_path($image, $cmds) {
     // remove filename
     $cache_dirs = CACHE_PATH.implode('/', array_slice($path, 2, -1)); 
     $cache_file = end($path);
-    $cache = $cache_dirs.'/'.$cache_file;
+    $cache = $cache_dirs.'/'.$cache_file.'-'.$format;
     $cache = escapeshellcmd($cache);
 
     // create cache directory path if doesn't exist
@@ -133,28 +178,41 @@ function get_cache_path($image, $cmds) {
     return $cache;
 }
 
-function dispatch($image, $cache, $cmds) {
+/*
+ * parses imagemagick commands and runs the command line 'convert' utility on 
+ * the source image. calls outside functions for image processing if necessary.
+ *
+ * $image - path to source image
+ * &$cache - path to save transformed image, passed by reference so it can be 
+ * changed depending on cache settings
+ * $cmds - array of imagemagick commands to execute
+ * $format - format to return result
+ *              'img' - image in same format as source
+ *              'json' - some data derived from the operation
+ */
+function dispatch($image, &$cache, $cmds) {
+    // bypass or disable cache?
+    switch(CACHING) {
+    case 'no': 
+        $cache = CACHE_PATH."temp.jpg";
+        dprint("no caching. using $cache for temporary storage");
+    case 'refresh': // or 'no':
+        dprint("refreshing cache.");
+        if (file_exists($cache)) {
+            unlink($cache);
+            dprint("cache $cache deleted.");
+        }
+    }
+
     // get cache
-    dprint('cache: '.$_GET["cache"]);
     if (file_exists($cache)) {
-        dprint('cached image retrieved');
+        dprint('cached data retrieved');
         return 0;
     }
-    // no cache or cache disabled, compute image
-    if (isset($_GET["cache"])) {
-        switch($_GET["cache"]) {
-        case 'no': 
-            $cache = CACHE_PATH."temp.jpg";
-        case 'refresh': // or 'no':
-            if (file_exists($cache)) {
-                unlink($cache);
-            }
-            break;
-        }
-    }   
-    // convert query string to an imagemagick command string
+    // compute image
     $commands = '';
     foreach ($cmds as $cmd) {
+        // convert query string to an imagemagick command string
         // $cmd[2] is the command name
         // $cmd[4] the parameter
 
@@ -192,11 +250,8 @@ function dispatch($image, $cache, $cmds) {
             $new_type = $cmd[4];
             break;
 
-        /*
-         * crops image to target aspect ratio, then resizes
-         * to target dimensions.
-         */
         case 'part':
+            // crops image to target aspect ratio, then resizes to target dimensions.
             // get size of the original
             $imginfo = getimagesize($image);
             $orig_w = $imginfo[0];
@@ -229,17 +284,15 @@ function dispatch($image, $cache, $cmds) {
             }
             break;
 
-        /*
-         * custom commands that run as standalone functions
-         * or arbitrary imagemagick commands
-         */
+        // execute arbitrary imagemagick commands or standalone functions
         default:
+            // standalone function exists for this operation
             if (function_exists($cmd[2])) {
                 if (!preg_match('/^[0-9]+x[0-9]+$/',$cmd[4])) {
                     die('ERROR: Invalid parameter.');
                 }
                 list($width, $height) = explode('x', $cmd[4]);
-                $result = $cmd[2]($image, $width, $height, $cache);
+                return $cmd[2]($image, $width, $height, $cache);
             }
 
             // nothing special, just add the command
@@ -253,18 +306,16 @@ function dispatch($image, $cache, $cmds) {
     }
 
     // run Imagemagick from command line if needed
-    if ($commands) {
-        // create the convert-command
-        $convert = CONVERT_PATH.' '.$commands.' "'.$image.'" ';
-        if (isset($new_type)) {
-            // send file type-command to imagemagick
-            $convert .= $new_type.':';
-        }
-        $convert .= '"'.$cache.'"';
-
-        // execute imagemagick's convert, save output as $cache
-        $result = exec($convert);
+    // create the convert-command
+    $convert = CONVERT_PATH.' '.$commands.' "'.$image.'" ';
+    if (isset($new_type)) {
+        // send file type-command to imagemagick
+        $convert .= $new_type.':';
     }
+    $convert .= '"'.$cache.'"';
+
+    // execute imagemagick's convert, save output as $cache
+    $result = exec($convert);
 
     dprint($cache);
     // there should be a file named $cache now
@@ -280,12 +331,16 @@ function dispatch($image, $cache, $cmds) {
 
 
 /* 
- * serves an image 
+ * displays an image over the webserver
  *
  * $cache - path of file to display
  * $as_html - serve the image as an img tag in an html page (use for debugging)
  */
-function render($cache, $as_html=false) {
+function render($cache, $as_html=false, $format) {
+    if ($format == 'json') {
+        readfile($cache);
+        return;
+    }
     if ($as_html) {
         echo "<img src=\"$cache\"/>";
         return;
@@ -331,16 +386,4 @@ function render($cache, $as_html=false) {
     readfile($cache);
 }
                
-function dprint($str, $print_r=false) {
-    if (DEBUG > 0) {
-        if ($print_r) {
-            print_r($str);
-            echo "<br/>\n";
-        }
-        else {
-            echo $str."<br/>\n";
-        }
-    }
-}
-
 ?>
