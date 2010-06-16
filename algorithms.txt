@@ -1,0 +1,13 @@
+6/15/2010 12pm
+opticrop:
+generates crops from a uniformly spaced grid of locations (and crop sizes), computes edgesum for each, picks highest one after normalization
+inefficient bc many copies of image are made
+time to run ~10-20s
+
+2:13pm
+opticrop 2:
+finds center of edginess using weighted average -- systematic sum vs random sample: random is 10x faster
+
+using gd is much faster than imagick for random pixel access
+
+todo - crop around that center
