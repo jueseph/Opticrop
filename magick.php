@@ -23,7 +23,7 @@ mt_srand(1);    // seed RNG to get consistent results
 /* constants */
 define('DOCUMENT_ROOT', $_SERVER['DOCUMENT_ROOT']);
 // location of cached images (with trailing /)
-define('CACHE_PATH', 'imagecache/');
+define('CACHE_PATH', 'magick-cache/');
 // location of imagemagick's convert utility
 define('CONVERT_PATH', 'convert');//'/usr/local/bin/convert';
 define('LOG_PATH', 'log.magick.txt');
@@ -116,16 +116,26 @@ function main() {
  *
  */
 function get_image_path($url) {
-    // Images must be local files, so for convenience we strip the domain if it's there
-    $image = preg_replace('/^(s?f|ht)tps?:\/\/[^\/]+/i', '', (string) $url);
+    // url given, strip domain 
+    $image = preg_replace('/^(s?f|ht)tps?:\/\/[^\/]+/i', '', $url);
 
-    // For security, directories cannot contain ':', images cannot contain '..' or '<', and
-    // images must start with '/'
-    if ($image{0} != '/' || strpos(dirname($image), ':') || preg_match('/(\.\.|<|>)/', $image))
-    {
+    // for security directories can't contain ':'
+    // images can't contain '..' or '<', 
+    if (strpos(dirname($image), ':') || 
+        preg_match('/(\.\.|<|>)/', $image)) {
         header('HTTP/1.1 400 Bad Request');
         echo 'Error: malformed image path. Image paths must begin with \'/\'';
         exit();
+    }
+
+    // add docroot to absolute paths
+    if ($image{0} == '/') {
+        $docRoot = rtrim(DOCUMENT_ROOT,'/');
+        $image = $docRoot . $image;
+    }
+    else {
+        // relative path
+        $image = str_replace('\\', '/', getcwd()).'/'.$image;
     }
 
     // check if an image location is given
@@ -135,10 +145,6 @@ function get_image_path($url) {
         echo 'Error: no image was specified';
         exit();
     }
-
-    // Strip the possible trailing slash off the document root
-    $docRoot = rtrim(DOCUMENT_ROOT,'/');
-    $image = $docRoot . $image;
 
     // check if the file exists
     if (!file_exists($image))

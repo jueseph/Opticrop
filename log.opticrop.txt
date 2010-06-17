@@ -42,3 +42,379 @@ Thu, 17 Jun 10 10:58:36 -0400
 src=http://localhost/opticrop/test.jpg&w=100&h=100&cache=no&format=json
 0.404632 s
 
+Thu, 17 Jun 10 14:38:52 -0400
+src=http://localhost/opticrop/test.jpg&format=json&w=458&h=478
+1.744011 s
+
+Thu, 17 Jun 10 14:39:53 -0400
+src=test.jpg&format=json&w=458&h=478
+0.000262 s
+
+Thu, 17 Jun 10 14:40:02 -0400
+src=test.jpg&format=json&w=&h=
+0.421154 s
+
+Thu, 17 Jun 10 14:40:07 -0400
+src=test.jpg&format=json&w=399&h=294
+0.427954 s
+
+Thu, 17 Jun 10 14:40:58 -0400
+src=test.jpg&format=json&w=279&h=247
+0.412746 s
+
+Thu, 17 Jun 10 14:41:15 -0400
+src=test.jpg&format=json&w=337&h=288
+0.410166 s
+
+Thu, 17 Jun 10 14:41:20 -0400
+src=test.jpg&format=json&w=NaN&h=NaN
+0.410303 s
+
+Thu, 17 Jun 10 14:42:14 -0400
+src=test.jpg&format=json&w=256&h=165
+0.408607 s
+
+Thu, 17 Jun 10 14:42:47 -0400
+src=test.jpg&format=json&w=434&h=323
+0.416735 s
+
+Thu, 17 Jun 10 14:43:45 -0400
+src=test.jpg&format=json&w=&h=
+0.000189 s
+
+Thu, 17 Jun 10 14:43:48 -0400
+src=test.jpg&format=json&w=339&h=290
+0.414963 s
+
+Thu, 17 Jun 10 14:44:01 -0400
+src=test.jpg&format=json&w=208&h=201
+0.425297 s
+
+Thu, 17 Jun 10 14:44:51 -0400
+src=test.jpg&format=json&w=186&h=219
+0.410134 s
+
+Thu, 17 Jun 10 14:46:06 -0400
+src=test.jpg&format=json&w=311&h=388
+0.415666 s
+
+Thu, 17 Jun 10 14:46:21 -0400
+src=test.jpg&format=json&w=154&h=224
+0.423460 s
+
+Thu, 17 Jun 10 14:46:44 -0400
+src=test.jpg&format=json&w=289&h=282
+0.424126 s
+
+Thu, 17 Jun 10 14:46:51 -0400
+src=test.jpg&format=json&w=390&h=388
+0.417765 s
+
+Thu, 17 Jun 10 14:47:56 -0400
+src=test.jpg&format=json&w=100&h=100
+0.404210 s
+
+Thu, 17 Jun 10 14:50:00 -0400
+src=test.jpg&format=json&w=463&h=271
+0.423519 s
+
+Thu, 17 Jun 10 14:58:45 -0400
+src=test.jpg&format=json&w=100&h=100
+0.000415 s
+
+Thu, 17 Jun 10 14:59:31 -0400
+src=test.jpg&format=json&w=100&h=100
+0.000407 s
+
+Thu, 17 Jun 10 15:01:40 -0400
+src=test.jpg&format=json&w=0&h=0
+0.419595 s
+
+Thu, 17 Jun 10 15:01:46 -0400
+src=test.jpg&format=json&w=296&h=332
+0.437008 s
+
+Thu, 17 Jun 10 15:02:47 -0400
+src=test.jpg&format=json&w=100&h=100
+0.000397 s
+
+Thu, 17 Jun 10 15:03:28 -0400
+src=test.jpg&format=json&w=100&h=100
+0.000213 s
+
+Thu, 17 Jun 10 15:12:50 -0400
+src=test.jpg&format=json&w=100&h=100
+0.000422 s
+
+Thu, 17 Jun 10 15:13:33 -0400
+src=test.jpg&format=json&w=100&h=100
+0.000399 s
+
+Thu, 17 Jun 10 15:14:10 -0400
+src=test.jpg&format=json&w=100&h=100
+0.000420 s
+
+Thu, 17 Jun 10 15:14:48 -0400
+src=test.jpg&format=json&w=367&h=125
+0.422362 s
+
+Thu, 17 Jun 10 15:15:12 -0400
+src=test.jpg&format=json&w=800&h=272
+0.434122 s
+
+Thu, 17 Jun 10 15:57:03 -0400
+src=test.jpg&format=json&w=100&h=100
+0.000449 s
+
+Thu, 17 Jun 10 16:18:57 -0400
+src=test.jpg&format=json&w=652&h=252
+0.444370 s
+
+Thu, 17 Jun 10 16:19:38 -0400
+src=test.jpg&format=json&w=490&h=189
+0.424802 s
+
+Thu, 17 Jun 10 16:21:49 -0400
+src=test.jpg&format=json&w=183&h=366
+0.423478 s
+
+Thu, 17 Jun 10 16:22:02 -0400
+src=test.jpg&format=json&w=183&h=100
+0.438415 s
+
+Thu, 17 Jun 10 16:30:28 -0400
+src=test.jpg&format=json&w=52&h=522
+0.431950 s
+
+Thu, 17 Jun 10 16:34:04 -0400
+src=test.jpg&format=json&w=&h=
+0.000512 s
+
+Thu, 17 Jun 10 16:34:37 -0400
+src=test.jpg&format=json&w=100&h=100
+0.000700 s
+
+Thu, 17 Jun 10 16:37:17 -0400
+src=test.jpg&format=json&w=100&h=100
+0.000519 s
+
+Thu, 17 Jun 10 16:37:32 -0400
+src=test2.jpg&format=json&w=100&h=100
+0.595067 s
+
+Thu, 17 Jun 10 16:37:47 -0400
+src=test2.jpg&format=json&w=761&h=761
+0.538520 s
+
+Thu, 17 Jun 10 16:37:47 -0400
+src=test2.jpg&format=json&w=761&h=761
+0.000141 s
+
+Thu, 17 Jun 10 16:38:27 -0400
+src=test3.jpg&format=json&w=100&h=100
+0.466588 s
+
+Thu, 17 Jun 10 16:46:01 -0400
+src=test.jpg&format=json&w=100&h=100
+0.000424 s
+
+Thu, 17 Jun 10 16:46:25 -0400
+src=test.jpg&format=json&w=586&h=522
+0.425493 s
+
+Thu, 17 Jun 10 16:46:25 -0400
+src=test.jpg&format=json&w=586&h=522
+0.000125 s
+
+Thu, 17 Jun 10 16:47:03 -0400
+src=test.jpg&format=json&w=100&h=100
+0.000659 s
+
+Thu, 17 Jun 10 16:47:16 -0400
+src=test.jpg&format=json&w=364&h=364
+0.440438 s
+
+Thu, 17 Jun 10 16:47:26 -0400
+src=test.jpg&format=json&w=364&h=364
+0.000119 s
+
+Thu, 17 Jun 10 16:55:52 -0400
+src=test4.jpg&format=json&w=100&h=100
+0.467367 s
+
+Thu, 17 Jun 10 16:56:01 -0400
+src=test4.jpg&format=json&w=348&h=284
+0.454844 s
+
+Thu, 17 Jun 10 16:56:08 -0400
+src=test4.jpg&format=json&w=100&h=100
+0.000666 s
+
+Thu, 17 Jun 10 16:56:15 -0400
+src=test4.jpg&format=json&w=100&h=100
+0.000132 s
+
+Thu, 17 Jun 10 16:56:19 -0400
+src=test4.jpg&format=json&w=100&h=100
+0.000128 s
+
+Thu, 17 Jun 10 16:57:38 -0400
+src=test4.jpg&format=json&w=100&h=100
+0.000173 s
+
+Thu, 17 Jun 10 16:57:48 -0400
+src=test4.jpg&format=json&w=661&h=100
+0.448368 s
+
+Thu, 17 Jun 10 16:57:55 -0400
+src=test4.jpg&format=json&w=100&h=200
+0.444868 s
+
+Thu, 17 Jun 10 16:57:59 -0400
+src=test4.jpg&format=json&w=100&h=200
+0.000134 s
+
+Thu, 17 Jun 10 16:58:17 -0400
+src=test4.jpg&format=json&w=100&h=100
+0.000424 s
+
+Thu, 17 Jun 10 16:58:26 -0400
+src=test4.jpg&format=json&w=661&h=100
+0.000403 s
+
+Thu, 17 Jun 10 16:58:35 -0400
+src=test4.jpg&format=json&w=800&h=100
+0.435958 s
+
+Thu, 17 Jun 10 16:58:35 -0400
+src=test4.jpg&format=json&w=800&h=100
+0.000119 s
+
+Thu, 17 Jun 10 16:58:45 -0400
+src=test4.jpg&format=json&w=200&h=100
+0.431675 s
+
+Thu, 17 Jun 10 16:58:53 -0400
+src=test4.jpg&format=json&w=200&h=50
+0.435484 s
+
+Thu, 17 Jun 10 16:59:03 -0400
+src=test4.jpg&format=json&w=400&h=50
+0.440081 s
+
+Thu, 17 Jun 10 16:59:12 -0400
+src=test4.jpg&format=json&w=50&h=200
+0.439120 s
+
+Thu, 17 Jun 10 17:00:58 -0400
+src=test4.jpg&format=json&w=50&h=200
+0.000369 s
+
+Thu, 17 Jun 10 17:01:55 -0400
+src=test4.jpg&format=json&w=100&h=100
+0.000215 s
+
+Thu, 17 Jun 10 17:02:07 -0400
+src=test4.jpg&format=json&w=100&h=232
+0.444057 s
+
+Thu, 17 Jun 10 17:02:13 -0400
+src=test4.jpg&format=json&w=100&h=20
+0.445938 s
+
+Thu, 17 Jun 10 17:13:50 -0400
+src=test4.jpg&format=json&w=100&h=100
+0.000456 s
+
+Thu, 17 Jun 10 17:14:52 -0400
+src=test4.jpg&format=json&w=100&h=100
+0.000473 s
+
+Thu, 17 Jun 10 17:15:35 -0400
+src=test4.jpg&format=json&w=100&h=100
+0.000164 s
+
+Thu, 17 Jun 10 17:15:44 -0400
+src=test4.jpg&format=json&w=100&h=100
+0.000137 s
+
+Thu, 17 Jun 10 17:17:51 -0400
+src=test4.jpg&format=json&w=100&h=100
+0.000520 s
+
+Thu, 17 Jun 10 17:20:17 -0400
+src=test4.jpg&format=json&w=100&h=100
+0.000555 s
+
+Thu, 17 Jun 10 17:22:34 -0400
+src=test4.jpg&format=json&w=100&h=100
+0.000526 s
+
+Thu, 17 Jun 10 17:23:12 -0400
+src=test4.jpg&format=json&w=100&h=100
+0.000127 s
+
+Thu, 17 Jun 10 17:25:09 -0400
+src=test4.jpg&format=json&w=100&h=100
+0.000528 s
+
+Thu, 17 Jun 10 17:25:10 -0400
+src=test2.jpg&format=json&w=100&h=100
+0.000215 s
+
+Thu, 17 Jun 10 17:25:12 -0400
+src=test3.jpg&format=json&w=100&h=100
+0.000331 s
+
+Thu, 17 Jun 10 17:25:13 -0400
+src=test4.jpg&format=json&w=100&h=100
+0.000146 s
+
+Thu, 17 Jun 10 17:25:14 -0400
+src=test.jpg&format=json&w=100&h=100
+0.000244 s
+
+Thu, 17 Jun 10 17:29:26 -0400
+src=test.jpg&format=json&w=100&h=100
+0.000453 s
+
+Thu, 17 Jun 10 17:29:34 -0400
+src=test.jpg&format=json&w=472&h=229
+0.430726 s
+
+Thu, 17 Jun 10 17:30:05 -0400
+src=test.jpg&format=json&w=100&h=100
+0.000122 s
+
+Thu, 17 Jun 10 17:30:12 -0400
+src=test.jpg&format=json&w=217&h=61
+0.430271 s
+
+Thu, 17 Jun 10 17:30:45 -0400
+src=test.jpg&format=json&w=620&h=165
+0.430266 s
+
+Thu, 17 Jun 10 17:31:21 -0400
+src=test.jpg&format=json&w=100&h=100
+0.000339 s
+
+Thu, 17 Jun 10 17:31:31 -0400
+src=test.jpg&format=json&w=155&h=170
+0.445492 s
+
+Thu, 17 Jun 10 17:41:44 -0400
+src=test.jpg&format=json&w=100&h=100
+0.000496 s
+
+Thu, 17 Jun 10 17:42:32 -0400
+src=test.jpg&format=json&w=100&h=100
+0.000417 s
+
+Thu, 17 Jun 10 17:44:35 -0400
+src=test.jpg&format=json&w=100&h=100
+0.001105 s
+
+Thu, 17 Jun 10 17:47:36 -0400
+src=test.jpg&format=json&w=100&h=100
+0.000411 s
+

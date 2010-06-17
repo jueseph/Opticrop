@@ -1494,3 +1494,167 @@ Wed, 16 Jun 10 18:22:36 -0400
 src=http://localhost/process/test.jpg&cmd=opticrop(100x100)&format=json
 0.000269 s
 
+Thu, 17 Jun 10 12:04:51 -0400
+src=http://localhost/opticrop/test.jpg&cmd=crop(100x100%2B10%2B10)
+0.422138 s
+
+Thu, 17 Jun 10 12:04:59 -0400
+src=http://localhost/opticrop/test.jpg&cmd=crop(100x100%2B40%2B40)
+0.185931 s
+
+Thu, 17 Jun 10 12:05:04 -0400
+src=http://localhost/opticrop/test.jpg&cmd=crop(200x200%2B40%2B40)
+0.188750 s
+
+Thu, 17 Jun 10 12:05:12 -0400
+src=http://localhost/opticrop/test.jpg&cmd=crop(200x200%2B300%2B300)
+0.191396 s
+
+Thu, 17 Jun 10 13:51:13 -0400
+src=http%3A%2F%2Flocalhost%2Fopticrop%2Ftest.jpg&cmd=crop%28464x366%2B336%2B40%29
+0.242604 s
+
+Thu, 17 Jun 10 13:57:26 -0400
+src=http%3A%2F%2Flocalhost%2Fopticrop%2Ftest.jpg&cmd=crop%28380x311%2B152%2B37%29
+0.234630 s
+
+Thu, 17 Jun 10 15:02:08 -0400
+src=test.jpg&cmd=crop(364x364%2B267%2B61)
+0.339498 s
+
+Thu, 17 Jun 10 15:02:51 -0400
+src=test.jpg&cmd=crop%28364x364%2B26761%29
+0.207055 s
+
+Thu, 17 Jun 10 15:03:29 -0400
+src=test.jpg&cmd=crop%28364x364%2B267%2B61%29
+0.000142 s
+
+Thu, 17 Jun 10 15:14:24 -0400
+src=test.jpg&cmd=crop(364x364%2B33%2B27)
+0.213167 s
+
+Thu, 17 Jun 10 15:14:27 -0400
+src=test.jpg&cmd=crop(364x364%2B189%2B153)
+0.187982 s
+
+Thu, 17 Jun 10 15:14:50 -0400
+src=test.jpg&cmd=crop(800x272%2B0%2B107)
+0.192550 s
+
+Thu, 17 Jun 10 16:04:26 -0400
+debug=1&src=test.jpg&cmd=crop(100x100%2B0%2B0)%2Bresize(100x100)
+0.167469 s
+
+Thu, 17 Jun 10 16:05:40 -0400
+src=test.jpg&cmd=crop(100x100%2B519%2B124)%2Bresize(100x100)&debug=1
+0.122422 s
+
+Thu, 17 Jun 10 16:06:48 -0400
+src=test.jpg&cmd=crop(100x100%2B0%2B0)%2Bresize(100x100)&debug=1
+0.000536 s
+
+Thu, 17 Jun 10 16:07:08 -0400
+src=test.jpg&cmd=crop(100x100%2B449%2B104)%2Bresize(100x100)&debug=1
+0.193885 s
+
+Thu, 17 Jun 10 16:07:21 -0400
+src=test.jpg&cmd=crop(238x238%2B330%2B93)%2Bresize(100x100)&debug=1
+0.187891 s
+
+Thu, 17 Jun 10 16:07:31 -0400
+src=test.jpg&cmd=crop(474x474%2B296%2B5)%2Bresize(100x100)&debug=1
+0.181821 s
+
+Thu, 17 Jun 10 16:08:17 -0400
+src=test.jpg&cmd=crop(474x474%2B296%2B5)%2Bresize(100x100)&debug=1
+0.000298 s
+
+Thu, 17 Jun 10 16:09:18 -0400
+src=test.jpg&cmd=crop(286x286%2B377%2B71)%2Bresize(286x286)&debug=1
+0.140266 s
+
+Thu, 17 Jun 10 16:12:10 -0400
+src=test.jpg&cmd=crop(100x100%2B0%2B0)&debug=1
+0.146875 s
+
+Thu, 17 Jun 10 16:12:48 -0400
+src=test.jpg&cmd=crop(100x100%2B0%2B0)&debug=1
+0.000984 s
+
+Thu, 17 Jun 10 16:13:35 -0400
+src=test.jpg&cmd=crop(100x100%2B0%2B0)
+0.000148 s
+
+Thu, 17 Jun 10 16:18:38 -0400
+src=test.jpg&cmd=crop(100x100%2B500%2B119)
+0.128143 s
+
+Thu, 17 Jun 10 16:18:58 -0400
+src=test.jpg&cmd=crop(782x302%2B18%2B92)
+0.142141 s
+
+Thu, 17 Jun 10 16:19:40 -0400
+src=test.jpg&cmd=crop(723x279%2B77%2B103)
+0.194643 s
+
+Thu, 17 Jun 10 16:21:51 -0400
+src=test.jpg&cmd=crop(232x464%2B333%2B11)%2Bresize(183x366)
+0.143705 s
+
+Thu, 17 Jun 10 16:22:04 -0400
+src=test.jpg&cmd=crop(723x395%2B77%2B45)%2Bresize(183x100)
+0.209270 s
+
+Thu, 17 Jun 10 16:30:29 -0400
+src=test.jpg&cmd=crop(52x522%2B423%2B0)%2Bresize(52x522)
+0.135302 s
+
+Thu, 17 Jun 10 16:36:34 -0400
+src=test.jpg&cmd=crop(364x364%2B267%2B61)%2Bresize(364x364)
+0.136413 s
+
+Thu, 17 Jun 10 16:38:02 -0400
+src=test2.jpg&cmd=crop(308x308%2B535%2B368)%2Bresize(761x761)
+0.210656 s
+
+Thu, 17 Jun 10 16:38:29 -0400
+src=test3.jpg&cmd=crop(163x163%2B408%2B44)%2Bresize(163x163)
+0.115802 s
+
+Thu, 17 Jun 10 16:40:19 -0400
+src=test.jpg&cmd=crop(270x344%2B280%2B3)%2Bresize(270x344)
+0.134087 s
+
+Thu, 17 Jun 10 16:47:27 -0400
+src=test.jpg&cmd=crop(502x502%2B198%2B0)%2Bresize(364x364)
+0.171890 s
+
+Thu, 17 Jun 10 16:49:32 -0400
+src=test3.jpg&cmd=crop(428x472%2B262%2B23)%2Bresize(428x472)
+0.210645 s
+
+Thu, 17 Jun 10 16:51:44 -0400
+src=test4.jpg&cmd=crop(482x311%2B146%2B127)%2Bresize(482x311)
+0.215231 s
+
+Thu, 17 Jun 10 16:52:15 -0400
+src=test4.jpg&cmd=crop(571x571%2B139%2B0)%2Bresize(100x100)
+0.201333 s
+
+Thu, 17 Jun 10 17:02:16 -0400
+src=test4.jpg&cmd=crop(800x160%2B0%2B148)%2Bresize(100x20)
+0.189508 s
+
+Thu, 17 Jun 10 17:03:42 -0400
+src=test4.jpg&cmd=crop(571x571%2B139%2B0)%2Bresize(571x571)
+0.171387 s
+
+Thu, 17 Jun 10 17:31:33 -0400
+src=test.jpg&cmd=crop(396x434%2B251%2B26)%2Bresize(155x170)
+0.204709 s
+
+Thu, 17 Jun 10 17:31:58 -0400
+src=test.jpg&cmd=crop(732x361%2B68%2B62)%2Bresize(528x260)
+0.206588 s
+
