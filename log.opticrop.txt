@@ -1,0 +1,44 @@
+Thu, 17 Jun 10 10:49:44 -0400
+src=http://localhost/opticrop/test2.jpg&w=100&h=200&cache=no
+0.000283 s
+
+Thu, 17 Jun 10 10:53:56 -0400
+src=http://localhost/opticrop/test2.jpg&w=100&h=200&cache=no&debug=1
+0.000177 s
+
+Thu, 17 Jun 10 10:54:13 -0400
+src=http://localhost/opticrop/test.jpg&w=100&h=200&cache=no&debug=1
+0.000180 s
+
+Thu, 17 Jun 10 10:54:17 -0400
+src=http://localhost/opticrop/test.jpg&w=10&h=200&cache=no&debug=1
+0.000093 s
+
+Thu, 17 Jun 10 10:54:52 -0400
+src=http://localhost/opticrop/test.jpg&w=10&h=200&cache=no&debug=1
+0.000107 s
+
+Thu, 17 Jun 10 10:57:51 -0400
+src=http://localhost/opticrop/test.jpg&w=10&h=200&cache=no&debug=1
+0.579123 s
+
+Thu, 17 Jun 10 10:58:03 -0400
+src=http://localhost/opticrop/test.jpg&w=100&h=200&cache=no&debug=1
+0.614718 s
+
+Thu, 17 Jun 10 10:58:17 -0400
+src=http://localhost/opticrop/test.jpg&w=100&h=200&cache=no
+0.421178 s
+
+Thu, 17 Jun 10 10:58:20 -0400
+src=http://localhost/opticrop/test.jpg&w=100&h=200&cache=no
+0.420553 s
+
+Thu, 17 Jun 10 10:58:25 -0400
+src=http://localhost/opticrop/test.jpg&w=100&h=100&cache=no
+0.422399 s
+
+Thu, 17 Jun 10 10:58:36 -0400
+src=http://localhost/opticrop/test.jpg&w=100&h=100&cache=no&format=json
+0.404632 s
+
