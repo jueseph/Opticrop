@@ -138,7 +138,7 @@ $dims = array(  array('w'=>200, 'h'=>200),
                 qstr += "&cmd="+encodeURIComponent(cmd);
                 
                 log('Building crop img tag...<br/>query: '+qstr);
-                $('#output').html("<img src=\"http://localhost/opticrop/"+qstr+"\"/>");
+                $('#output').html("<img src=\""+qstr+"\"/>");
                 /*var url = "<?php echo $magick_url;?>";
                 $.get(url,
                     { src: "<?php echo $imgsrc;?>", cmd: cmd},
