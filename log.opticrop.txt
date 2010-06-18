@@ -418,3 +418,7 @@ Thu, 17 Jun 10 17:47:36 -0400
 src=test.jpg&format=json&w=100&h=100
 0.000411 s
 
+Fri, 18 Jun 10 00:42:50 -0400
+src=test3.jpg&format=json&w=100&h=100
+2.579864 s
+

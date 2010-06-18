@@ -1658,3 +1658,7 @@ Thu, 17 Jun 10 17:31:58 -0400
 src=test.jpg&cmd=crop(732x361%2B68%2B62)%2Bresize(528x260)
 0.206588 s
 
+Fri, 18 Jun 10 00:42:52 -0400
+src=test3.jpg&cmd=crop(163x163%2B408%2B44)%2Bresize(163x163)
+0.213053 s
+
