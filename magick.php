@@ -259,6 +259,10 @@ function dispatch($image, &$cache, $cmds) {
         case 'part':
             // crops image to target aspect ratio, then resizes to target dimensions.
             // get size of the original
+            if (!preg_match('/^[0-9]+x[0-9]+$/',$cmd[4])) {
+                die('ERROR: Invalid parameter.');
+            }
+            list($width, $height) = explode('x', $cmd[4]);
             $imginfo = getimagesize($image);
             $orig_w = $imginfo[0];
             $orig_h = $imginfo[1];

@@ -33,6 +33,8 @@ if (isset($_GET["cache"])) define('CACHING',$_GET["cache"]);
 else define('CACHING','yes');
 if (isset($_GET['format'])) define('FORMAT',$_GET['format']);
 else define('FORMAT', 'img');
+if (isset($_GET['gamma'])) define('GAMMA',$_GET['gamma']);
+else define('GAMMA', 0.2);
 
 // execute the script
 main();
@@ -167,7 +169,7 @@ function get_cache_path($image) {
     // path to cache file
     $cache_file = end($path);
     // append script parameters to cache path
-    $cache = $cache_dirs.'/'.$cache_file.'-'.$_GET['w'].'x'.$_GET['h'].'-'.FORMAT;
+    $cache = $cache_dirs.'/'.$cache_file.'-'.$_GET['w'].'x'.$_GET['h'].'-'.GAMMA.'-'.FORMAT;
     $cache = escapeshellcmd($cache);
     return $cache;
 }
@@ -289,11 +291,11 @@ function opticrop($image, $w, $h, $out, $format) {
     // parameters for the edge-maximizing crop algorithm
     $r = 1;         // radius of edge filter
     $nk = 9;        // scale count: number of crop sizes to try
-    $gamma = 0.2;   // edge normalization parameter -- see documentation
+    $gamma = GAMMA;   // edge normalization parameter -- see documentation
     $ar = $w/$h;    // target aspect ratio (AR)
     $ar0 = $w0/$h0;    // target aspect ratio (AR)
 
-    dprint("$image: $w0 x $h0 => $w x $h");
+    dprint(basename($image).": $w0 x $h0 => $w x $h");
     $img = new Imagick($image);
     $imgcp = clone $img;
 

@@ -440,4 +440,115 @@ src=test2.jpg&format=json&w=100&h=100
 
 Fri, 18 Jun 10 00:42:50 -0400
 src=test3.jpg&format=json&w=100&h=100
-2.579864 s
+2.579864 sMon, 21 Jun 10 14:54:29 -0400
+src=test.jpg&format=json&w=458&h=478
+0.133434 s
+
+Mon, 21 Jun 10 14:54:39 -0400
+src=test.jpg&format=img&w=458&h=478
+4.641043 s
+
+Mon, 21 Jun 10 15:02:55 -0400
+src=test5.jpg&format=img&w=458&h=478
+0.588564 s
+
+Mon, 21 Jun 10 16:38:29 -0400
+src=test5.jpg&format=img&w=100&h=100&debug=1
+1.436011 s
+
+Mon, 21 Jun 10 16:54:45 -0400
+src=test5.jpg&w=100&h=100
+0.000750 s
+
+Mon, 21 Jun 10 16:55:51 -0400
+src=test5.jpg
+0.000068 s
+
+Mon, 21 Jun 10 16:56:29 -0400
+src=test6.jpg
+0.000295 s
+
+Mon, 21 Jun 10 16:57:13 -0400
+src=test6.jpg&w=100&h=100
+0.516532 s
+
+Mon, 21 Jun 10 17:04:27 -0400
+src=test6.jpg&w=100&h=100&gamma=0.3
+0.741151 s
+
+Mon, 21 Jun 10 17:04:30 -0400
+src=test6.jpg&w=100&h=100&gamma=0.4
+0.524504 s
+
+Mon, 21 Jun 10 17:04:35 -0400
+src=test6.jpg&w=100&h=100&gamma=0
+0.518760 s
+
+Mon, 21 Jun 10 17:05:06 -0400
+src=test6.jpg&w=100&h=100&gamma=1
+0.501676 s
+
+Mon, 21 Jun 10 17:05:19 -0400
+src=test6.jpg&w=100&h=100&gamma=0.8
+0.499948 s
+
+Mon, 21 Jun 10 17:05:26 -0400
+src=test6.jpg&w=100&h=100&gamma=0.9
+0.952595 s
+
+Mon, 21 Jun 10 17:09:12 -0400
+src=test5.jpg&w=100&h=100&gamma=0.8
+0.617938 s
+
+Mon, 21 Jun 10 17:09:19 -0400
+src=test5.jpg&w=100&h=100&gamma=0.9
+0.530657 s
+
+Mon, 21 Jun 10 17:09:28 -0400
+src=test5.jpg&w=100&h=100&gamma=0.85
+0.541608 s
+
+Mon, 21 Jun 10 17:09:32 -0400
+src=test5.jpg&w=100&h=100&gamma=0.87
+0.564750 s
+
+Mon, 21 Jun 10 17:09:35 -0400
+src=test5.jpg&w=100&h=100&gamma=0.88
+0.524870 s
+
+Mon, 21 Jun 10 17:09:44 -0400
+src=test5.jpg&w=100&h=100&gamma=1
+0.519974 s
+
+Mon, 21 Jun 10 17:10:27 -0400
+src=test3.jpg&w=100&h=100&gamma=0.9
+0.479661 s
+
+Mon, 21 Jun 10 17:10:43 -0400
+src=test3.jpg&w=100&h=100&gamma=0.2
+0.449681 s
+
+Mon, 21 Jun 10 17:11:03 -0400
+src=test3.jpg
+0.000085 s
+
+Mon, 21 Jun 10 17:12:40 -0400
+src=test/sn-comets.jpg
+0.009945 s
+
+Mon, 21 Jun 10 17:13:30 -0400
+src=test/sn-comets.jpg&w=120&h=40
+0.442065 s
+
+Mon, 21 Jun 10 17:13:37 -0400
+src=test/sn-comets.jpg&w=120&h=40&gamma=0.2
+0.000130 s
+
+Mon, 21 Jun 10 17:13:58 -0400
+src=test/sn-comets.jpg&w=120&h=40&gamma=0.9
+0.419858 s
+
+Mon, 21 Jun 10 17:14:19 -0400
+src=test/sn-comets.jpg&w=150&h=40&gamma=0.9
+0.423209 s
+
